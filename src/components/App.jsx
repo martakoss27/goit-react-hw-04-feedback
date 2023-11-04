@@ -1,66 +1,48 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { useState } from 'react';
 import { Section } from './Section/Section';
 import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
 import { Statistics } from './Statistics/Statistics';
 import { styled } from 'styled-components';
 
-export class App extends Component {
-  constructor() {
-    super();
+const options = ['Good', 'Neutral', 'Bad'];
 
-    this.state = {
-      good: 0,
-      neutral: 0,
-      bad: 0,
-    };
-  }
+export const App = () => {
+  const [state, setState] = useState({ good: 0, neutral: 0, bad: 0 });
 
-  onLeaveFeedback = e => {
-    const button = e.currentTarget;
-    const buttonTextContent = button.textContent.toLowerCase();
-    this.setState(prevState => ({
-      [buttonTextContent]: prevState[buttonTextContent] + 1,
+  const onLeaveFeedback = e => {
+    const button = e.currentTarget.textContent.toLowerCase();
+    setState(prevState => ({
+      ...prevState,
+      [button]: prevState[button] + 1,
     }));
   };
 
-  countTotalFeedback = () => {
-    const { good, neutral, bad } = this.state;
-    return good + neutral + bad;
-  };
+  const total = state.good + state.neutral + state.bad;
 
-  countPositiveFeedbackPercentage = () => {
-    const { good } = this.state;
-    const total = this.countTotalFeedback();
-    return Math.round((good / total) * 100);
-  };
+  const positivePercentage = Math.ceil((state.good / total) * 100);
 
-  render() {
-    const { good, neutral, bad } = this.state;
-    const options = ['Good', 'Neutral', 'Bad'];
-    const total = this.countTotalFeedback();
-    const positivePercentage = this.countPositiveFeedbackPercentage();
+  return (
+    <StyledWrapper>
+      <Section title="Please leave feedback">
+        <FeedbackOptions
+          options={options}
+          onLeaveFeedback={onLeaveFeedback}
+        ></FeedbackOptions>
+      </Section>
+      <Section title="Statistics">
+        <Statistics
+          good={state.good}
+          neutral={state.neutral}
+          bad={state.bad}
+          total={total}
+          positivePercentage={positivePercentage}
+        ></Statistics>
+      </Section>
+    </StyledWrapper>
+  );
+};
 
-    return (
-      <StyledWrapper>
-        <Section title="Please leave feedback">
-          <FeedbackOptions
-            options={options}
-            onLeaveFeedback={this.onLeaveFeedback}
-          ></FeedbackOptions>
-        </Section>
-        <Section title="Statistics">
-          <Statistics
-            good={good}
-            neutral={neutral}
-            bad={bad}
-            total={total}
-            positivePercentage={positivePercentage}
-          ></Statistics>
-        </Section>
-      </StyledWrapper>
-    );
-  }
-}
 const StyledWrapper = styled.div`
   display: flex;
   flex-direction: column;
